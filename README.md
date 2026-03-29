@@ -9,8 +9,7 @@ Dünya yörüngesindeki aktif uyduları ve uzay enkazlarını gerçek zamanlı o
 ---
 
 ## 📸 Ekran Görüntüsü
-*(Buraya uygulamanızın 3D simülasyonundan bir ekran görüntüsü ekleyebilirsiniz)*
-`![Simulation Preview](https://via.placeholder.com/800x400?text=OrbitWatch+3D+Simulation+Preview)`
+![Simulation Preview](https://api.zenofy.tr/other/orbitwatch_ss.jpeg)
 
 ---
 
