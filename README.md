@@ -51,7 +51,7 @@ Sistem, kullanıcıya verileri sadece liste olarak değil, interaktif bir **3D U
 
 ### 1. Depoyu Klonlayın
 ```bash
-git clone https://github.com/kullaniciadi/uzay-enkazi-takip.git
+git clone https://github.com/kullaniciadi/orbitwatch.git
 cd uzay-enkazi-takip
 ```
 
@@ -103,3 +103,4 @@ Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ## 🤝 Katkıda Bulunma
 Hata bildirimleri ve özellik talepleri için lütfen "Issues" kısmını kullanın. Pull request'leriniz her zaman bekleriz!
+
