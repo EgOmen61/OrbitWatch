@@ -619,7 +619,7 @@ function showInfoPanel(sat) {
     document.getElementById('info-sat-name').textContent = sat.name || 'Bilinmeyen';
     const badge = document.getElementById('info-type-badge');
     if (sat.category === 'active') {
-        badge.textContent = 'UYDU'; badge.className = 'info-type-badge active';
+        badge.textContent = 'AKTİF'; badge.className = 'info-type-badge active';
     } else {
         badge.textContent = 'ENKAZ'; badge.className = 'info-type-badge debris';
     }

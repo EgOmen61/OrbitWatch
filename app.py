@@ -141,6 +141,34 @@ def fetch_spacetrack_data(session, url, cache_key, max_count):
 
     return satellites
 
+def fetch_active_norad_ids(session):
+    """Space-Track SATCAT kullanarak sadece HAKİKATEN aktif olan uyduların (ölü olmayan) ID'lerini çeker."""
+    cache_key = 'active_norad_ids'
+    cached = get_cached_data(cache_key)
+    if cached is not None:
+        print(f"[CACHE HIT] active_norad_ids: {len(cached)} ID")
+        return set(cached)
+
+    print("[API] Space-Track satcat tablosundan operasyonel durum çekiliyor...")
+    url = "https://www.space-track.org/basicspacedata/query/class/satcat/CURRENT/Y/OBJECT_TYPE/PAYLOAD/format/json"
+    try:
+        response = session.get(url, timeout=45)
+        response.raise_for_status()
+        data = response.json()
+        active_ids = []
+        for item in data:
+            status = item.get('OPERATIONAL_STATUS_CODE', '')
+            # Sadece operasyonel, kısmi operasyonel, yedek ve uzatılmış görevdekileri al
+            if status in ['+', 'P', 'B', 'S', 'X']:
+                active_ids.append(str(item.get('NORAD_CAT_ID')))
+        
+        save_cache(cache_key, active_ids)
+        print(f"[API] {len(active_ids)} adet aktif uydu ID'si alındı.")
+        return set(active_ids)
+    except Exception as e:
+        print(f"Space-Track satcat hatası: {e}")
+        return set()
+
 
 def login_spacetrack():
     """Space-Track API'sine giriş yapar ve session döndürür."""
@@ -182,14 +210,42 @@ def load_all_satellites():
     session = login_spacetrack()
     
     if session:
-        active_data = fetch_spacetrack_data(
-            session, SPACETRACK_ACTIVE_URL, 'active_satellites', MAX_ACTIVE
+        active_ids_set = fetch_active_norad_ids(session)
+        
+        all_payloads = fetch_spacetrack_data(
+            session, SPACETRACK_ACTIVE_URL, 'payload_satellites', MAX_ACTIVE
         )
-        debris_data = fetch_spacetrack_data(
+        
+        raw_debris_data = fetch_spacetrack_data(
             session, SPACETRACK_DEBRIS_URL, 'debris_satellites', MAX_DEBRIS
         )
+        
         # Login işlemi sonrası session kapatılabilir
         session.close()
+        
+        if all_payloads is not None:
+            active_data = []
+            debris_data = raw_debris_data if raw_debris_data is not None else []
+            
+            # Her zaman enkaz (debris) sayılacak bilinen uydular
+            known_dead_sats = ['TURKSAT 1B', 'TURKSAT 1C', 'TURKSAT 2A', 'TURKSAT 3A']
+            
+            # Payloadları gerçek durumuna göre aktif/enkaz olarak ayır
+            for sat in all_payloads:
+                sat_name = str(sat.get('name', '')).upper().replace('Ü', 'U')
+                is_known_dead = any(dead_name in sat_name for dead_name in known_dead_sats)
+                
+                if is_known_dead:
+                    sat['category'] = 'debris'
+                    debris_data.append(sat)
+                elif active_ids_set and str(sat.get('norad_id')) not in active_ids_set:
+                    sat['category'] = 'debris'
+                    debris_data.append(sat)
+                else:
+                    active_data.append(sat)
+        else:
+            active_data = None
+            debris_data = raw_debris_data
     else:
         active_data = None
         debris_data = None
