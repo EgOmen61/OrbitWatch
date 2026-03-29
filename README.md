@@ -52,7 +52,7 @@ Sistem, kullanıcıya verileri sadece liste olarak değil, interaktif bir **3D U
 ### 1. Depoyu Klonlayın
 ```bash
 git clone https://github.com/kullaniciadi/orbitwatch.git
-cd uzay-enkazi-takip
+cd orbitwatch
 ```
 
 ### 2. Sanal Ortam Oluşturun (Önerilir)
